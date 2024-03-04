@@ -1,9 +1,9 @@
 // Set the target header.
 var targetColumnHeader = 'Priority'
 // Set the target value.
-var targetDefaultValue = 0
+var targetDefaultValue = -1
 // Sort ascending or descending.
-var sortAscending = false
+var sortAscending = true
 
 /**
  * Checks if the given row is empty or not.
@@ -24,6 +24,14 @@ function isRowEmpty(sheet, row, ignoreIndices) {
   return true
 }
 
+/**
+ * Sort sheet according to the given column index.
+ */
+function sortSheet(sheet, columnIndex) {
+  var range = sheet.getRange('A2:Z')
+  range.sort([{ column: columnIndex, ascending: sortAscending }])
+}
+
 function onEdit(event) {
   // Get the active sheet.
   var sheet = event.source.getActiveSheet()
@@ -38,8 +46,7 @@ function onEdit(event) {
       .getValues()[0]
       .indexOf(targetColumnHeader) + 1
   if (editedColumnHeader === targetColumnHeader) {
-    var range = sheet.getRange('A2:Z')
-    range.sort([{ column: targetColumnIndex, ascending: sortAscending }])
+    sortSheet(sheet, targetColumnIndex)
   }
 
   // Add a default value to the target column whenever new row is added.
@@ -48,5 +55,6 @@ function onEdit(event) {
   var isRowEmptyResult = isRowEmpty(sheet, editedRow, [targetColumnIndex])
   if (targetCellValue === '' && !isRowEmptyResult) {
     sheet.getRange(editedRow, targetColumnIndex).setValue(targetDefaultValue)
+    sortSheet(sheet, targetColumnIndex)
   }
 }
