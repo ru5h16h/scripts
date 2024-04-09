@@ -3,19 +3,19 @@
 import io
 import logging
 import os
+import pickle
 import tarfile
 import tqdm
 
-import requests
 from PIL import Image
+import requests
 
 CIFAR10_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
 OUT_DIR = "cifar10"
 
 
-def unpickle(file):
-  import pickle
-  with open(file, 'rb') as fo:
+def unpickle(file_path):
+  with open(file_path, 'rb') as fo:
     dict_ = pickle.load(fo, encoding='bytes')
   return dict_
 
