@@ -5,10 +5,10 @@ import logging
 import os
 import pickle
 import tarfile
-import tqdm
 
 from PIL import Image
 import requests
+import tqdm
 
 CIFAR10_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
 OUT_DIR = "cifar10"
@@ -32,10 +32,13 @@ def save_images(batch_path, out_dir):
   img_data = data[b"data"]
   img_data = img_data.reshape((len(img_data), 3, 32, 32)).transpose(0, 2, 3, 1)
   file_names = data[b"filenames"]
-  for idx, file_name in tqdm.tqdm(enumerate(file_names),
-                                  ncols=79,
-                                  total=len(file_names)):
-    out_path = os.path.join(out_dir, file_name.decode('utf-8'))
+  file_labels = data[b"labels"]
+  for idx, (file_name,
+            file_label) in tqdm.tqdm(enumerate(zip(file_names, file_labels)),
+                                     ncols=79,
+                                     total=len(file_names)):
+    out_path = os.path.join(out_dir,
+                            f"{file_label}-{file_name.decode('utf-8')}")
     Image.fromarray(img_data[idx]).save(out_path)
 
 
@@ -48,7 +51,7 @@ def main():
   extracted_dir = extract_tar(file_obj=content_bytes)
 
   for filename in os.listdir(extracted_dir):
-    if filename.startswith("data"):
+    if filename.startswith("idata"):
       out_dir = f"{OUT_DIR}/train"
       logging.info(f"Storing {filename} to {out_dir}")
       os.makedirs(out_dir, exist_ok=True)
